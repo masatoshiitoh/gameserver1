@@ -3,7 +3,6 @@ package com.gameserver.api;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
-import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
@@ -35,7 +34,7 @@ public class ApiServerApplication extends AbstractVerticle {
     protected Router createRouter() {
         Router router = Router.router(vertx);
         
-        router.route().handler(CorsHandler.create("*"));
+        router.route().handler(CorsHandler.create().addRelativeOrigin(".*"));
         router.route().handler(BodyHandler.create());
         
         router.post("/api/login").handler(this::handleLogin);
