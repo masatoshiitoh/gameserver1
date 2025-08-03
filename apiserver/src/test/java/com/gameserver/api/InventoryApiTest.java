@@ -1,6 +1,5 @@
 package com.gameserver.api;
 
-import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
@@ -14,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class InventoryApiTest extends BaseTest {
     
     private WebClient client;
-    private int port = 8082;
+    private final int port = 8082;
     private String deploymentId;
     
     private void loginAndExecute(String username, String password, 
@@ -37,7 +36,7 @@ class InventoryApiTest extends BaseTest {
     void deployVerticle(VertxTestContext testContext) {
         client = WebClient.create(vertx);
         
-        String dbName = "test_inventory_" + System.currentTimeMillis() + "_" + Thread.currentThread().getId();
+        String dbName = "test_inventory_" + System.currentTimeMillis() + "_" + Thread.currentThread().threadId();
         DatabaseService dbService = new DatabaseService(vertx, dbName);
         
         ApiServerApplication app = new ApiServerApplication();
@@ -127,29 +126,33 @@ class InventoryApiTest extends BaseTest {
                             JsonObject item = inventory.getJsonObject(i);
                             String itemName = item.getString("item_name");
                             
-                            if ("Iron Sword".equals(itemName)) {
-                                hasIronSword = true;
-                                assertEquals("weapon", item.getString("item_type"));
-                                assertEquals(1, item.getInteger("quantity"));
-                                JsonObject properties = item.getJsonObject("properties");
-                                assertNotNull(properties);
-                                assertEquals(50, properties.getInteger("damage"));
-                                assertEquals(100, properties.getInteger("durability"));
-                            } else if ("Health Potion".equals(itemName)) {
-                                hasHealthPotion = true;
-                                assertEquals("consumable", item.getString("item_type"));
-                                assertEquals(5, item.getInteger("quantity"));
-                                JsonObject properties = item.getJsonObject("properties");
-                                assertNotNull(properties);
-                                assertEquals(25, properties.getInteger("healing"));
-                            } else if ("Leather Armor".equals(itemName)) {
-                                hasLeatherArmor = true;
-                                assertEquals("armor", item.getString("item_type"));
-                                assertEquals(1, item.getInteger("quantity"));
-                                JsonObject properties = item.getJsonObject("properties");
-                                assertNotNull(properties);
-                                assertEquals(20, properties.getInteger("defense"));
-                                assertEquals(80, properties.getInteger("durability"));
+                            switch (itemName) {
+                                case "Iron Sword" -> {
+                                    hasIronSword = true;
+                                    assertEquals("weapon", item.getString("item_type"));
+                                    assertEquals(1, item.getInteger("quantity"));
+                                    JsonObject properties = item.getJsonObject("properties");
+                                    assertNotNull(properties);
+                                    assertEquals(50, properties.getInteger("damage"));
+                                    assertEquals(100, properties.getInteger("durability"));
+                                }
+                                case "Health Potion" -> {
+                                    hasHealthPotion = true;
+                                    assertEquals("consumable", item.getString("item_type"));
+                                    assertEquals(5, item.getInteger("quantity"));
+                                    JsonObject properties = item.getJsonObject("properties");
+                                    assertNotNull(properties);
+                                    assertEquals(25, properties.getInteger("healing"));
+                                }
+                                case "Leather Armor" -> {
+                                    hasLeatherArmor = true;
+                                    assertEquals("armor", item.getString("item_type"));
+                                    assertEquals(1, item.getInteger("quantity"));
+                                    JsonObject properties = item.getJsonObject("properties");
+                                    assertNotNull(properties);
+                                    assertEquals(20, properties.getInteger("defense"));
+                                    assertEquals(80, properties.getInteger("durability"));
+                                }
                             }
                         }
                         

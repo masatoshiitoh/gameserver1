@@ -1,6 +1,5 @@
 package com.gameserver.api;
 
-import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.HttpResponse;
@@ -15,14 +14,14 @@ import static org.junit.jupiter.api.Assertions.*;
 class LoginApiTest extends BaseTest {
     
     private WebClient client;
-    private int port = 8081;
+    private final int port = 8081;
     private String deploymentId;
     
     @BeforeEach
     void deployVerticle(VertxTestContext testContext) {
         client = WebClient.create(vertx);
         
-        String dbName = "test_login_" + System.currentTimeMillis() + "_" + Thread.currentThread().getId();
+        String dbName = "test_login_" + System.currentTimeMillis() + "_" + Thread.currentThread().threadId();
         DatabaseService dbService = new DatabaseService(vertx, dbName);
         
         ApiServerApplication app = new ApiServerApplication();

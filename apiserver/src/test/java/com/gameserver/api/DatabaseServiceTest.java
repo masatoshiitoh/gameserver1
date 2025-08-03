@@ -1,6 +1,5 @@
 package com.gameserver.api;
 
-import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.junit5.VertxTestContext;
@@ -15,7 +14,7 @@ class DatabaseServiceTest extends BaseTest {
     
     @BeforeEach
     void setUpDatabase(VertxTestContext testContext) {
-        String dbName = "test_db_" + System.currentTimeMillis() + "_" + Thread.currentThread().getId();
+        String dbName = "test_db_" + System.currentTimeMillis() + "_" + Thread.currentThread().threadId();
         databaseService = new DatabaseService(vertx, dbName);
         databaseService.init()
             .onSuccess(v -> testContext.completeNow())
@@ -110,21 +109,25 @@ class DatabaseServiceTest extends BaseTest {
                         JsonObject item = inventory.getJsonObject(i);
                         String itemName = item.getString("item_name");
                         
-                        if ("Iron Sword".equals(itemName)) {
+                        switch (itemName) {
+                            case "Iron Sword" -> {
                             hasIronSword = true;
                             assertEquals("weapon", item.getString("item_type"));
                             assertEquals(1, item.getInteger("quantity"));
                             JsonObject properties = item.getJsonObject("properties");
                             assertNotNull(properties);
                             assertEquals(50, properties.getInteger("damage"));
-                        } else if ("Health Potion".equals(itemName)) {
+                            }
+                            case "Health Potion" -> {
                             hasHealthPotion = true;
                             assertEquals("consumable", item.getString("item_type"));
                             assertEquals(5, item.getInteger("quantity"));
-                        } else if ("Leather Armor".equals(itemName)) {
+                            }
+                            case "Leather Armor" -> {
                             hasLeatherArmor = true;
                             assertEquals("armor", item.getString("item_type"));
                             assertEquals(1, item.getInteger("quantity"));
+                            }
                         }
                     }
                     

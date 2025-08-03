@@ -1,6 +1,5 @@
 package com.gameserver.api;
 
-import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.junit5.VertxTestContext;
@@ -13,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class AuthenticationApiTest extends BaseTest {
     
     private WebClient client;
-    private int port = 8084;
+    private final int port = 8084;
     private String deploymentId;
     private JwtService jwtService;
     
@@ -21,7 +20,7 @@ class AuthenticationApiTest extends BaseTest {
     void deployVerticle(VertxTestContext testContext) {
         client = WebClient.create(vertx);
         
-        String dbName = "test_auth_" + System.currentTimeMillis() + "_" + Thread.currentThread().getId();
+        String dbName = "test_auth_" + System.currentTimeMillis() + "_" + Thread.currentThread().threadId();
         DatabaseService dbService = new DatabaseService(vertx, dbName);
         jwtService = new JwtService(vertx);
         

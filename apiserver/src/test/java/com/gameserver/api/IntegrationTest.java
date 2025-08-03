@@ -1,6 +1,5 @@
 package com.gameserver.api;
 
-import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
@@ -14,14 +13,14 @@ import static org.junit.jupiter.api.Assertions.*;
 class IntegrationTest extends BaseTest {
     
     private WebClient client;
-    private int port = 8083;
+    private final int port = 8083;
     private String deploymentId;
     
     @BeforeEach
     void deployVerticle(VertxTestContext testContext) {
         client = WebClient.create(vertx);
         
-        String dbName = "test_integration_" + System.currentTimeMillis() + "_" + Thread.currentThread().getId();
+        String dbName = "test_integration_" + System.currentTimeMillis() + "_" + Thread.currentThread().threadId();
         DatabaseService dbService = new DatabaseService(vertx, dbName);
         
         ApiServerApplication app = new ApiServerApplication();
