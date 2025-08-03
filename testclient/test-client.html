@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Client Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 3px;
+            white-space: pre-wrap;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+    </style>
+</head>
+<body>
+    <h1>Game Server API Client Test</h1>
+    
+    <div class="test-section">
+        <h2>API Server Status</h2>
+        <p>Before testing the client, make sure the API server is running on <strong>http://localhost:8080</strong></p>
+        <button onclick="testServerConnection()">Test Server Connection</button>
+        <div id="serverStatus" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Login Test</h2>
+        <p>Test login functionality with demo accounts:</p>
+        <button onclick="testLogin('player1', 'password123')">Test Player 1</button>
+        <button onclick="testLogin('player2', 'password456')">Test Player 2</button>
+        <button onclick="testLogin('admin', 'admin123')">Test Admin</button>
+        <div id="loginResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Inventory Test</h2>
+        <p>Test inventory retrieval (requires login first):</p>
+        <button onclick="testInventory()">Test Inventory</button>
+        <div id="inventoryResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Open Main Client</h2>
+        <p>If all tests pass, you can open the main game client:</p>
+        <button onclick="openMainClient()">Open Game Client</button>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8080/api';
+        let currentToken = null;
+
+        async function testServerConnection() {
+            const statusDiv = document.getElementById('serverStatus');
+            statusDiv.textContent = 'Testing connection...';
+            
+            try {
+                // Try to make a simple request to see if server is responding
+                const response = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({})
+                });
+                
+                if (response.status === 400) {
+                    statusDiv.className = 'result success';
+                    statusDiv.textContent = '✓ Server is running and responding! (Got expected 400 error for empty request)';
+                } else {
+                    statusDiv.className = 'result success';
+                    statusDiv.textContent = `✓ Server is running! (Response: ${response.status})`;
+                }
+            } catch (error) {
+                statusDiv.className = 'result error';
+                statusDiv.textContent = `✗ Server connection failed: ${error.message}`;
+            }
+        }
+
+        async function testLogin(username, password) {
+            const resultDiv = document.getElementById('loginResult');
+            resultDiv.textContent = `Testing login for ${username}...`;
+            
+            try {
+                const response = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    currentToken = data.accessToken;
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✓ Login successful for ${username}!\nUser ID: ${data.userId}\nToken: ${data.accessToken.substring(0, 20)}...`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `✗ Login failed: ${data.error || 'Unknown error'}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `✗ Login request failed: ${error.message}`;
+            }
+        }
+
+        async function testInventory() {
+            const resultDiv = document.getElementById('inventoryResult');
+            
+            if (!currentToken) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = '✗ Please login first!';
+                return;
+            }
+            
+            resultDiv.textContent = 'Testing inventory retrieval...';
+            
+            try {
+                const response = await fetch(`${API_URL}/inventory`, {
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✓ Inventory retrieved successfully!\nUser ID: ${data.userId}\nItems: ${data.inventory.length}\n\nFirst few items:\n${JSON.stringify(data.inventory.slice(0, 3), null, 2)}`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `✗ Inventory request failed: ${data.error || 'Unknown error'}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `✗ Inventory request failed: ${error.message}`;
+            }
+        }
+
+        function openMainClient() {
+            window.open('index.html', '_blank');
+        }
+
+        // Auto-test server connection on load
+        window.onload = function() {
+            testServerConnection();
+        };
+    </script>
+</body>
+</html>

@@ -186,6 +186,25 @@ public class ApiServerApplication extends AbstractVerticle {
 
     public static void main(String[] args) {
         Vertx vertx = Vertx.vertx();
-        vertx.deployVerticle(new ApiServerApplication());
+        ApiServerApplication app = new ApiServerApplication();
+        
+        vertx.deployVerticle(app)
+            .onSuccess(id -> {
+                vertx.createHttpServer()
+                    .requestHandler(app.createRouter())
+                    .listen(8080)
+                    .onSuccess(server -> {
+                        System.out.println("HTTP server started on port " + server.actualPort());
+                        System.out.println("API available at: http://localhost:" + server.actualPort() + "/api");
+                    })
+                    .onFailure(error -> {
+                        System.err.println("Failed to start HTTP server: " + error.getMessage());
+                        vertx.close();
+                    });
+            })
+            .onFailure(error -> {
+                System.err.println("Failed to deploy verticle: " + error.getMessage());
+                vertx.close();
+            });
     }
 }

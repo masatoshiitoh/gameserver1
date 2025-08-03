@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Client - Adventure Quest</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="game-container">
+        <!-- Login Screen -->
+        <div id="loginScreen" class="screen active">
+            <div class="login-card">
+                <div class="game-logo">
+                    <h1>⚔️ Adventure Quest</h1>
+                    <p>Enter the realm of legends</p>
+                </div>
+                <form id="loginForm" class="login-form">
+                    <div class="input-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                    <div id="loginError" class="error-message"></div>
+                </form>
+                <div class="demo-accounts">
+                    <h3>Demo Accounts:</h3>
+                    <div class="demo-buttons">
+                        <button class="btn btn-demo" data-user="player1" data-pass="password123">Player 1</button>
+                        <button class="btn btn-demo" data-user="player2" data-pass="password456">Player 2</button>
+                        <button class="btn btn-demo" data-user="admin" data-pass="admin123">Admin</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="gameScreen" class="screen">
+            <header class="game-header">
+                <div class="player-info">
+                    <div class="player-avatar">👤</div>
+                    <div class="player-details">
+                        <h2 id="playerName">Player</h2>
+                        <span id="playerId" class="player-id">ID: #0</span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button id="refreshBtn" class="btn btn-secondary">🔄 Refresh</button>
+                    <button id="logoutBtn" class="btn btn-danger">Logout</button>
+                </div>
+            </header>
+
+            <main class="game-main">
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="inventory">🎒 Inventory</button>
+                    <button class="tab-btn" data-tab="profile">👤 Profile</button>
+                    <button class="tab-btn" data-tab="settings">⚙️ Settings</button>
+                </div>
+
+                <div class="tab-content">
+                    <!-- Inventory Tab -->
+                    <div id="inventoryTab" class="tab-panel active">
+                        <div class="inventory-header">
+                            <h2>🎒 Your Inventory</h2>
+                            <div class="inventory-stats">
+                                <span id="itemCount">0 items</span>
+                            </div>
+                        </div>
+                        <div id="inventoryGrid" class="inventory-grid">
+                            <div class="loading">Loading inventory...</div>
+                        </div>
+                    </div>
+
+                    <!-- Profile Tab -->
+                    <div id="profileTab" class="tab-panel">
+                        <div class="profile-section">
+                            <h2>👤 Player Profile</h2>
+                            <div class="profile-card">
+                                <div class="profile-avatar">👤</div>
+                                <div class="profile-info">
+                                    <h3 id="profileName">Player Name</h3>
+                                    <p id="profileId">Player ID: #0</p>
+                                    <p id="profileJoined">Joined: Today</p>
+                                </div>
+                            </div>
+                            <div class="stats-grid">
+                                <div class="stat-card">
+                                    <h4>Total Items</h4>
+                                    <span id="statTotalItems">0</span>
+                                </div>
+                                <div class="stat-card">
+                                    <h4>Weapons</h4>
+                                    <span id="statWeapons">0</span>
+                                </div>
+                                <div class="stat-card">
+                                    <h4>Armor</h4>
+                                    <span id="statArmor">0</span>
+                                </div>
+                                <div class="stat-card">
+                                    <h4>Consumables</h4>
+                                    <span id="statConsumables">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Settings Tab -->
+                    <div id="settingsTab" class="tab-panel">
+                        <div class="settings-section">
+                            <h2>⚙️ Settings</h2>
+                            <div class="settings-card">
+                                <h3>API Configuration</h3>
+                                <div class="setting-item">
+                                    <label for="apiUrl">API Server URL:</label>
+                                    <input type="text" id="apiUrl" value="http://localhost:8080/api">
+                                </div>
+                                <div class="setting-item">
+                                    <label for="autoRefresh">Auto Refresh:</label>
+                                    <input type="checkbox" id="autoRefresh" checked>
+                                </div>
+                                <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Item Detail Modal -->
+    <div id="itemModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="itemDetails">
+                <!-- Item details will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
