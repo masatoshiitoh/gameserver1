@@ -2,6 +2,16 @@
 
 A social game-like web client for the Game Server API.
 
+> **Note**: The test client is now integrated into the API server and can be accessed at `http://localhost:8080/testclient/` when the server is running. This provides a seamless development experience with the client and API hosted together.
+
+## Project Overview
+
+This repository contains a complete game backend system with:
+- **API Server** (`/apiserver`): Vert.x-based REST API with JWT authentication, inventory management, and H2 database
+- **Test Client** (`/testclient`): Interactive web-based client for testing and demonstrating the API
+
+The test client is automatically served by the API server at the `/testclient/` endpoint for easy development and testing.
+
 ## Features
 
 - 🎮 **Social Game UI**: Modern, responsive interface with game-like styling
@@ -15,20 +25,27 @@ A social game-like web client for the Game Server API.
 
 1. **Start the API Server**:
    ```bash
-   cd ../apiserver
-   mvn spring-boot:run
+   cd apiserver
+   mvn clean compile
+   mvn exec:java -Dexec.mainClass="com.gameserver.api.ApiServerApplication"
    ```
-   The API server should be running on `http://localhost:8080`
+   The API server will start on `http://localhost:8080`
 
-2. **Open the Client**:
-   Open `index.html` in your web browser or serve it with a local web server:
+2. **Access the Test Client**:
+   The test client is now hosted by the API server. Simply open your browser and navigate to:
+   ```
+   http://localhost:8080/testclient/
+   ```
+
+   Alternatively, you can still run the client standalone:
    ```bash
+   cd testclient
    # Using Python
    python -m http.server 3000
-   
+
    # Using Node.js
    npx serve .
-   
+
    # Or simply open index.html in your browser
    ```
 
@@ -87,12 +104,20 @@ A social game-like web client for the Game Server API.
 
 ### File Structure
 ```
-testclient/
-├── index.html      # Main HTML file
-├── styles.css      # CSS styling
-├── script.js       # JavaScript logic
-└── README.md       # This file
+testclient/                    # Source files
+├── index.html                 # Main HTML file
+├── styles.css                 # CSS styling
+├── script.js                  # JavaScript logic
+├── README.md                  # This file
+└── INSTRUCTIONS.md
+
+apiserver/src/main/resources/webroot/testclient/  # Hosted version
+├── index.html                 # Copied from source
+├── styles.css                 # Copied from source
+└── script.js                  # Copied from source
 ```
+
+**Note**: The files in `apiserver/src/main/resources/webroot/testclient/` are copies of the source files. When making changes, update the source files in `testclient/` and copy them to the apiserver resources directory.
 
 ### Customization
 
@@ -129,7 +154,9 @@ To add new API endpoints:
 
 ### CORS Issues
 
-If running into CORS issues, make sure the API server allows requests from your client origin. You may need to configure CORS in the API server.
+When using the hosted version at `http://localhost:8080/testclient/`, CORS is not an issue since the client and API are served from the same origin.
+
+If running the client standalone (from a different port or local file), the API server already has CORS configured to allow cross-origin requests.
 
 ## License
 

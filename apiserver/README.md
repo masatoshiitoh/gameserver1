@@ -4,9 +4,11 @@ A Vert.x-based REST API server for game backend services.
 
 ## Features
 
-- **Login API**: User authentication endpoint
+- **Login API**: User authentication with JWT tokens
 - **Inventory API**: Retrieve user inventory data
+- **Test Client**: Built-in web client for testing at `/testclient/`
 - **H2 Database**: In-memory database for development
+- **CORS Support**: Cross-origin requests enabled
 
 ## API Endpoints
 
@@ -26,7 +28,8 @@ Authenticate a user with username and password.
 {
   "success": true,
   "userId": 1,
-  "username": "player1"
+  "username": "player1",
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
 ```
 
@@ -37,8 +40,13 @@ Authenticate a user with username and password.
 }
 ```
 
-### GET /api/inventory/{userId}
-Get inventory items for a specific user.
+### GET /api/inventory
+Get inventory items for the authenticated user.
+
+**Headers:**
+```
+Authorization: Bearer <accessToken>
+```
 
 **Success Response (200):**
 ```json
@@ -66,9 +74,12 @@ Get inventory items for a specific user.
 
 ## Running the Server
 
+### Build and Run
+
 ```bash
 cd apiserver
-mvn compile exec:java -Dexec.mainClass="com.gameserver.api.ApiServerApplication"
+mvn clean compile
+mvn exec:java -Dexec.mainClass="com.gameserver.api.ApiServerApplication"
 ```
 
 Or using the Vert.x Maven plugin:
@@ -76,9 +87,28 @@ Or using the Vert.x Maven plugin:
 mvn vertx:run
 ```
 
-The server will start on port 8080.
+The server will start on port 8080 and display:
+```
+HTTP server started on port 8080
+API available at: http://localhost:8080/api
+Test client available at: http://localhost:8080/testclient/
+```
+
+### Access Points
+
+- **API Server**: http://localhost:8080/api
+- **Test Client**: http://localhost:8080/testclient/
 
 ## Testing
+
+### Using the Web Client
+
+The easiest way to test the API is using the built-in web client:
+1. Start the server
+2. Open http://localhost:8080/testclient/ in your browser
+3. Login with demo accounts (player1/password123, player2/password456, or admin/admin123)
+
+### Using cURL
 
 Example login request:
 ```bash
@@ -87,7 +117,37 @@ curl -X POST http://localhost:8080/api/login \
   -d '{"username":"player1","password":"password123"}'
 ```
 
-Example inventory request:
+Example inventory request (requires authentication):
 ```bash
-curl http://localhost:8080/api/inventory/1
+# Save the accessToken from login response, then:
+curl http://localhost:8080/api/inventory \
+  -H "Authorization: Bearer <accessToken>"
 ```
+
+## Project Structure
+
+```
+apiserver/
+├── src/
+│   ├── main/
+│   │   ├── java/com/gameserver/api/
+│   │   │   ├── ApiServerApplication.java  # Main application
+│   │   │   ├── DatabaseService.java       # Database operations
+│   │   │   └── JwtService.java            # JWT token handling
+│   │   └── resources/
+│   │       └── webroot/
+│   │           └── testclient/            # Web client files
+│   │               ├── index.html
+│   │               ├── styles.css
+│   │               └── script.js
+│   └── test/                              # Test files
+├── pom.xml                                # Maven configuration
+└── README.md                              # This file
+```
+
+## Technology Stack
+
+- **Vert.x 4.4.4**: Reactive application framework
+- **H2 Database**: In-memory SQL database
+- **JWT**: JSON Web Tokens for authentication
+- **Maven**: Build and dependency management
