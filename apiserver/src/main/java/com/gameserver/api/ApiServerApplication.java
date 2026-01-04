@@ -8,6 +8,7 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
+import io.vertx.ext.web.handler.StaticHandler;
 
 public class ApiServerApplication extends AbstractVerticle {
 
@@ -33,15 +34,18 @@ public class ApiServerApplication extends AbstractVerticle {
 
     protected Router createRouter() {
         Router router = Router.router(vertx);
-        
+
         router.route().handler(CorsHandler.create().addRelativeOrigin(".*"));
         router.route().handler(BodyHandler.create());
-        
+
+        // Serve testclient static files
+        router.route("/testclient/*").handler(StaticHandler.create("webroot/testclient").setIndexPage("index.html"));
+
         router.post("/api/login").handler(this::handleLogin);
         router.get("/api/inventory").handler(this::authenticateToken).handler(this::handleGetInventory);
-        
+
         router.route().failureHandler(this::handleFailure);
-        
+
         return router;
     }
 
@@ -196,6 +200,7 @@ public class ApiServerApplication extends AbstractVerticle {
                     .onSuccess(server -> {
                         System.out.println("HTTP server started on port " + server.actualPort());
                         System.out.println("API available at: http://localhost:" + server.actualPort() + "/api");
+                        System.out.println("Test client available at: http://localhost:" + server.actualPort() + "/testclient/");
                     })
                     .onFailure(error -> {
                         System.err.println("Failed to start HTTP server: " + error.getMessage());
